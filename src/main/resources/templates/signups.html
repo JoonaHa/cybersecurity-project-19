@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Your information</title>
+    <style>
+     table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
+     th, td {
+        padding: 5px;
+     }
+     th {
+        text-align: left;
+      }
+
+    </style>
+</head>
+<body>
+
+<h1>Your signup information</h1>
+
+<table th:id="${account.id}">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>City</th>
+        <th>Zip code</th>
+        <th>Country</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td th:text="${signup.name}">name</td>
+        <td th:text="${signup.address}">Address</td>
+        <td th:text="${signup.city}">City</td>
+        <td th:text="${signup.zipCode}">Zip code</td>
+        <td th:text="${signup.country}">country</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
