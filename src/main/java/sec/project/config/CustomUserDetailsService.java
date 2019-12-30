@@ -40,8 +40,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         accountRepository.save(account);
 
         account = new Account();
-        account.setUsername("valiant");
-        account.setPassword(passwordEncoder.encode("vaudeville"));
+        account.setUsername("test");
+        account.setPassword(passwordEncoder.encode("1234"));
+        signup = new Signup("Matti Meikäläinen","Teststreet 123",
+                "TestCity","0000", "Finland");
+        signupRepository.save(signup);
+        account.setSignup(signup);
         accountRepository.save(account);
     }
 
