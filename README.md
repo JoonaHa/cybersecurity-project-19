@@ -14,3 +14,89 @@ mvn spring-boot:run
 ```
 mvn dependency-check:check
 ```
+
+---
+
+## Report
+
+Application is simple java maven application based on given course template.
+User can login or register to save his shipping information including his/her name, address, city, zip code, and country.
+The application include to account for testing with credentials:
+
+Username:”roger” Password: “carrots”
+Username:”test” Password: “1234”
+
+
+
+Flaw #1 Broken Access Control:
+
+	Steps to reproduce:
+	1. Open application (default http://localhost:8080/)
+	2. Login with user: roger, password: carrots.
+	3. On your sign up information-page inspect table-element
+	4. Copy it’s id number
+	5. Login to another account or logout
+	6. Now go to http://localhost:8080/signup/<paste id here>
+	7. Application responds with other users information in json-format
+	8. Now you have other user information 
+
+Possible fixes: Application should check if request is unauthenticated or a user is authenticated as a different user than the information who it belongs to. This can be implemented using just few if clauses checking if authentication is null or the user id isn’t equal compared to the Account which id is used for the query. Other option is to use the Spring  SecurityConfiguration class, which currnetly  only requires authentication for page “/signups”. 
+
+
+Flaw #2 Using Components with Known Vulnerabilities:
+
+	Steps to reproduce:
+	1. Enter the project’s root folder on your development enviroment.
+	2. Install maven if you already havent.
+	3. Run in the project folder"mvn dependency-check:check"
+	4. Wait until the maven-plugin has completed it’s analysis. (Can take a 	while)
+	5. Multiple different vulnerabilities will appear containing their CVE- 	codes.
+
+
+Possible fixes: Application’s dependencies should be updated to the a version where the vulnerabilities are patched. This could require quite drastic changes depending on the differences in the updated dependency. Another possibility is to  use another library that doesn’t contain such critical vulnerabilities and re implement the functionality. Although both of these options can require lot of effort to fix. 
+
+
+Flaw #3 Security Misconfiguration:
+
+	Steps to reproduce:
+	1. Open application (default http://localhost:8080/)
+	2. Click the "Or register a new account" link.
+	3. Fill the username and password field as “hello” and “1234”
+	4. Fill the rest of the form, except leave Name field or any other field 	empty,except for the username and password. 
+	5. Login with your newly created user: username: “hello” password “1234”
+	6. Click Login
+	4. A default error will page come up which reveals information about the system,witch can be use by possible attacker to try to attack the system and its vulnerabilities. The error page tells the attacker that the system is using Spring and the stack trace includes an SQL statement that has information about the database and its schemas.
+
+Possible fixes: A custom error.html page could be created and the default whitelabel error page should be disabled. As not to give any system information to potential attackers. A better solution would include a separate error controller that serves a different error pages depending on the error. A more descriptive error could help clients to troubleshoot whats wrong with the system. For example including separate error dialog depending if the error is 4xx, 5xx. Separate controller would also improve the logging in the system.
+
+
+Flaw #4 Cross-Site Scripting:
+
+	Steps to reproduce:
+	1. Open application
+	2. Click the "Or register a new account" link.
+	3. Write "<script>alert("XSS");</script>" into the address box or another box
+	4. Fill rest of the form.
+	5. Press submit
+	6. When the page is responds, the message "XSS" should be displayed on an alert box.
+
+Possible fixes: 
+The application should check and filter every input message for any injection attacks, whether it be SQL injection or cross site scripting. A library for input sanitizing is recommended. For current spring boot and thymeleaf implementation the hmtl template files contain s “th:utext” tags that should be replaced for “th:text” tags, as they escape possible html tags. All around better checks for input is needed as currently there are none.
+
+
+Flaw #5 Sensitive Data Exposure:
+This vulnerability requires analyzing source code.
+
+	Steps to reproduce:
+  	1.Open the root of the project folder
+  	2.Navigate to folder “src/main/java/sec/project/config”
+  	3. Open “SecurityConfiguration.java”
+  	4. Find implementation of method “public PasswordEncoder passwordEncoder()”
+  	5. Notice that the method overrides “encode” and “mathces” for “PasswordEncoder” interface.
+  	6. The override uses a custom MD5 implementation of Spring’s PasswordEncoder
+  	7. The MD5 algorithms is insufficient for hashing password and can be cracked easily if a data leak happens.
+
+Possible fixes: 
+The used MD5 algorithm is insecure in case of a password breach and can put users to risk if they have reused the same passwords on different sites.
+Most often developers shouldn’t implement their own hashing algorithms as they are libraries that offer a alternative that is rigorously tested and continually updated in case of issues. Spring contains PasswordEncdoders for Bcrypt, Pbkdf2, Scrypt which are more preferable choices, compared to MD5. Bcrypt is often favored by system developer and is the default algorithm for OpenBSD.
+
